@@ -83,9 +83,25 @@ const ListProperty = () => {
 
     setLoading(true);
 
+    // Prepare FormData for multipart/form-data
+    const multipartFormData = new FormData();
+    for (const key in formData) {
+      const value = formData[key];
+      if (Array.isArray(value)) {
+        // Append files (photos/videos)
+        value.forEach((file) => multipartFormData.append(key, file));
+      } else {
+        // Append other form fields
+        multipartFormData.append(key, value);
+      }
+    }
+
     axios
-      .post(createUrl, formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+      .post(createUrl, multipartFormData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          "Content-Type": "multipart/form-data",
+        },
       })
       .then(() => {
         setLoading(false);
@@ -161,10 +177,7 @@ const ListProperty = () => {
                     accept={field.field === "photos" ? "image/*" : "video/*"}
                     multiple={field.max > 1}
                     onChange={(e) =>
-                      handleInputChange(
-                        field.field,
-                        Array.from(e.target.files).map((file) => file.name)
-                      )
+                      handleInputChange(field.field, Array.from(e.target.files))
                     }
                   />
                 </Box>
