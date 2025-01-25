@@ -1,5 +1,6 @@
 const routesConfig = {
   // Admin Routes
+  users: `${process.env.REACT_APP_BACKEND_URL}${process.env.REACT_APP_USERS_FETCH}`,
   adminLogin: `${process.env.REACT_APP_BACKEND_URL}${process.env.REACT_APP_ADMIN_LOGIN}`,
   adminBlocklist: `${process.env.REACT_APP_BACKEND_URL}${process.env.REACT_APP_ADMIN_BLOCKLIST}`,
   adminUnblocklist: `${process.env.REACT_APP_BACKEND_URL}${process.env.REACT_APP_ADMIN_UNBLOCKLIST}`,
@@ -56,5 +57,7 @@ const routesConfig = {
   likes: `${process.env.REACT_APP_BACKEND_URL}${process.env.REACT_APP_LIKES_FETCH}`,
   wishlist: `${process.env.REACT_APP_BACKEND_URL}${process.env.REACT_APP_WISHLIST_FETCH}`,
 };
+
+console.log('Users Endpoint:', routesConfig.users);
 
 export default routesConfig;

@@ -1,4 +1,142 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Button,
+  Select,
+  MenuItem,
+} from '@mui/material';
+import axios from '../api/axios';
+import routesConfig from '../config/routesConfig';
+
+const Appointments = () => {
+  const [view, setView] = useState('day');
+  const [appointments, setAppointments] = useState([]);
+  const [statuses, setStatuses] = useState({});
+  const [error, setError] = useState('');
+
+  const fetchAppointments = async () => {
+    try {
+      const response = await axios.get(`${routesConfig.appointments.fetch}?view=${view}`);
+      setAppointments(response.data.appointments || []);
+      setError('');
+    } catch (err) {
+      console.error('Error fetching appointments:', err.response?.data || err.message);
+      setError('Failed to fetch appointments.');
+    }
+  };
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [view]);
+
+  const handleStatusChange = (id, status) => {
+    setStatuses((prev) => ({ ...prev, [id]: status }));
+  };
+
+  const updateStatus = async (id) => {
+    const status = statuses[id];
+    if (!status) return;
+
+    try {
+      await axios.put(routesConfig.appointments.update.replace(':id', id), { status });
+      setAppointments((prev) =>
+        prev.map((appt) => (appt.id === id ? { ...appt, status } : appt))
+      );
+      alert('Appointment status updated successfully.');
+    } catch (err) {
+      console.error('Error updating appointment status:', err);
+      setError('Failed to update appointment status.');
+    }
+  };
+
+  return (
+    <Box>
+      <Typography variant="h5" gutterBottom>
+        Manage Appointments
+      </Typography>
+
+      {/* Filter Selector */}
+      <Box mb={2}>
+        <Select
+          value={view}
+          onChange={(e) => setView(e.target.value)}
+          fullWidth
+          variant="outlined"
+        >
+          <MenuItem value="day">Today</MenuItem>
+          <MenuItem value="week">This Week</MenuItem>
+          <MenuItem value="month">This Month</MenuItem>
+        </Select>
+      </Box>
+
+      {/* Error Display */}
+      {error && (
+        <Typography color="error" style={{ marginBottom: '10px' }}>
+          {error}
+        </Typography>
+      )}
+
+      {/* Appointments Table */}
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Property ID</TableCell>
+              <TableCell>Date</TableCell>
+              <TableCell>User</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {appointments.map((appt) => (
+              <TableRow key={appt.id}>
+                <TableCell>{appt.propertyId}</TableCell>
+                <TableCell>{new Date(appt.date).toLocaleString()}</TableCell>
+                <TableCell>
+                  {appt.user?.name} ({appt.user?.mobileNumber})
+                </TableCell>
+                <TableCell>
+                  <Select
+                    value={statuses[appt.id] || appt.status}
+                    onChange={(e) => handleStatusChange(appt.id, e.target.value)}
+                    fullWidth
+                  >
+                    <MenuItem value="Confirmed">Confirmed</MenuItem>
+                    <MenuItem value="Rescheduled">Rescheduled</MenuItem>
+                    <MenuItem value="Cancelled">Cancelled</MenuItem>
+                  </Select>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => updateStatus(appt.id)}
+                    disabled={!statuses[appt.id] || statuses[appt.id] === appt.status}
+                  >
+                    Update
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  );
+};
+
+export default Appointments;
+
+
+/* import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -36,7 +174,7 @@ function Appointments() {
       })
       .then((response) => {
         setAppointments(response.data.appointments || []);
-        setStatuses({}); // Reset statuses when view changes
+        setStatuses({});
         setError("");
       })
       .catch((error) => {
@@ -85,7 +223,6 @@ function Appointments() {
         Manage Appointments
       </Typography>
 
-      {/* View Filter */}
       <Box mb={2}>
         <TextField
           label="Filter By"
@@ -101,14 +238,12 @@ function Appointments() {
         </TextField>
       </Box>
 
-      {/* Error Message */}
       {error && (
         <Typography color="error.main" style={{ marginTop: "10px" }}>
           {error}
         </Typography>
       )}
 
-      {/* Appointments Table */}
       <TableContainer>
         <Table>
           <TableHead>
@@ -161,3 +296,4 @@ function Appointments() {
 }
 
 export default Appointments;
+ */
